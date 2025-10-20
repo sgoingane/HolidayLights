@@ -48,9 +48,11 @@
 
 #include "LedEffects.h"
 
+#define LEDS_OFF // MAIN LED STRIP CONTROL
+
 #define LED_DPIN 5
 #define NUM_PIXELS 94
-#define BRIGHTNESS 100
+#define MAX_BRIGHTNESS 100
 
 const char* ssid = "SSID";
 const char* password = "PASSWD";
@@ -65,14 +67,20 @@ const int ESP_BUILTIN_LED = 2;
   WebServer server(80);
 #endif
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
 
 unsigned long ota_progress_millis = 0;
 
-uint32_t ORANGE = pixels.Color(255, 0, 64);
-uint32_t PURPLE = pixels.Color(89, 10, 153);
+//uint32_t ORANGE = pixels.Color(255, 0, 64);
+//uint32_t PURPLE = pixels.Color(89, 10, 153);
+
+uint32_t ORANGE = pixels.Color(128, 40, 0);
+uint32_t PURPLE = pixels.Color(64, 0, 128);
 
 void ledStrip() {
+#ifdef LEDS_ON
+  pixels.setBrightness(MAX_BRIGHTNESS);
+
   for (int i = 0; i < NUM_PIXELS; i++) {
     if (i % 8 < 4) {
       pixels.setPixelColor(i, ORANGE);
@@ -82,6 +90,7 @@ void ledStrip() {
   }
   pixels.show();
   delay(5000);
+#endif // LEDS_ON
 }
 
 void blinkLed(int timeOn, int timeOff) {
@@ -118,7 +127,8 @@ void onOTAEnd(bool success) {
 
 void setup(void) {
   pixels.begin();
-  pixels.setBrightness(BRIGHTNESS);
+  pixels.clear();
+  pixels.setBrightness(0);
   pixels.show();
 
   Serial.begin(115200);
@@ -163,6 +173,7 @@ void loop(void) {
   server.handleClient();
   ElegantOTA.loop();
 
+  // Onboard LED heartbeat
   blinkLed(700, 300);
   blinkLed(700, 1500);
 
