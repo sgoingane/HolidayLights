@@ -82,7 +82,8 @@ uint32_t PURPLE = pixels.Color(128, 0, 128);
 const char* html = "<html><head>"
                    "<title>Holiday Light Control</title>"
                    "<style>"
-                   "body { font-family: Arial, sans-serif; background-color: #1A1A1A; color: white; padding: 20px; }"
+                   "body { font-family: Arial, sans-serif; background-color: #1A1A1A; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }"
+                   ".container { text-align: center; width: 30%; }"
                    ".switch { position: relative; display: inline-block; width: 60px; height: 34px; }"
                    ".switch input { opacity: 0; width: 0; height: 0; }"
                    ".slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #B0B0B0; transition: .4s; border-radius: 34px; }"
@@ -92,7 +93,9 @@ const char* html = "<html><head>"
                    ".button { background-color: purple; color: white; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer; font-size: 16px; width: 100%; }"
                    ".button:hover { background-color: #5a2d92; }"
                    "</style>"
-                   "</head><body><h1>LED Control</h1>"
+                   "</head><body>"
+                   "<div class=\"container\">"
+                   "<h1>LED Control</h1>"
                    "<label class=\"switch\"><input type=\"checkbox\" id=\"toggleBtn\" onchange=\"toggleLED()\">"
                    "<span class=\"slider\"></span></label>"
                    "<script>"
@@ -104,7 +107,9 @@ const char* html = "<html><head>"
                    "location.href='/off';"
                    "}"
                    "}"
-                   "</script></body></html>";
+                   "</script>"
+                   "</div>"
+                   "</body></html>";
 
 void ledStrip() {
   if (showLeds_) {
