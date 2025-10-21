@@ -48,7 +48,7 @@
 
 #include "LedEffects.h"
 
-#define LEDS_OFF // MAIN LED STRIP CONTROL
+//#define LEDS_ON // MAIN LED STRIP CONTROL
 
 #define LED_DPIN 5
 #define NUM_PIXELS 94
@@ -58,6 +58,8 @@ const char* ssid = "SSID";
 const char* password = "PASSWD";
 
 const int ESP_BUILTIN_LED = 2;
+
+static bool showLeds_ = false;
 
 #if defined(ESP8266)
   ESP8266WebServer server(80);
@@ -75,22 +77,54 @@ unsigned long ota_progress_millis = 0;
 //uint32_t PURPLE = pixels.Color(89, 10, 153);
 
 uint32_t ORANGE = pixels.Color(128, 40, 0);
-uint32_t PURPLE = pixels.Color(64, 0, 128);
+uint32_t PURPLE = pixels.Color(128, 0, 128);
+
+const char* html = "<html><head>"
+                   "<title>Holiday Light Control</title>"
+                   "<style>"
+                   "body { font-family: Arial, sans-serif; background-color: #1A1A1A; color: white; padding: 20px; }"
+                   ".switch { position: relative; display: inline-block; width: 60px; height: 34px; }"
+                   ".switch input { opacity: 0; width: 0; height: 0; }"
+                   ".slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #B0B0B0; transition: .4s; border-radius: 34px; }"
+                   ".slider:before { position: absolute; content: ''; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }"
+                   "input:checked + .slider { background-color: #5a2d92; }"
+                   "input:checked + .slider:before { transform: translateX(26px); }"
+                   ".button { background-color: purple; color: white; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer; font-size: 16px; width: 100%; }"
+                   ".button:hover { background-color: #5a2d92; }"
+                   "</style>"
+                   "</head><body><h1>LED Control</h1>"
+                   "<label class=\"switch\"><input type=\"checkbox\" id=\"toggleBtn\" onchange=\"toggleLED()\">"
+                   "<span class=\"slider\"></span></label>"
+                   "<script>"
+                   "function toggleLED() {"
+                   "var toggle = document.getElementById('toggleBtn');"
+                   "if (toggle.checked) {"
+                   "location.href='/on';"
+                   "} else {"
+                   "location.href='/off';"
+                   "}"
+                   "}"
+                   "</script></body></html>";
 
 void ledStrip() {
-#ifdef LEDS_ON
-  pixels.setBrightness(MAX_BRIGHTNESS);
+  if (showLeds_) {
+    pixels.setBrightness(MAX_BRIGHTNESS);
 
-  for (int i = 0; i < NUM_PIXELS; i++) {
-    if (i % 8 < 4) {
-      pixels.setPixelColor(i, ORANGE);
-    } else {
-      pixels.setPixelColor(i, PURPLE);
+    for (int i = 0; i < NUM_PIXELS; i++) {
+      if (i % 8 < 4) {
+        pixels.setPixelColor(i, ORANGE);
+      } else {
+        pixels.setPixelColor(i, PURPLE);
+      }
     }
+    pixels.show();
+    delay(5000);
+  } else {
+    pixels.setBrightness(0);
+    pixels.clear();
+    pixels.show();
+    delay(5000);
   }
-  pixels.show();
-  delay(5000);
-#endif // LEDS_ON
 }
 
 void blinkLed(int timeOn, int timeOff) {
@@ -147,8 +181,25 @@ void setup(void) {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
+  // Define routes
   server.on("/", []() {
-    server.send(200, "text/plain", "Hi! This is ElegantOTA Demo.");
+    String htmlResponse = html;
+    if (showLeds_) {
+      htmlResponse.replace("id=\"toggleBtn\"", "id=\"toggleBtn\" checked");
+    }
+    server.send(200, "text/html", htmlResponse);
+  });
+
+  server.on("/on", []() {
+    showLeds_ = true;
+    server.sendHeader("Location", "/"); // root redirect
+    server.send(303);
+  });
+
+  server.on("/off", []() {
+    showLeds_ = false;
+    server.sendHeader("Location", "/"); // root redirect
+    server.send(303);
   });
 
   ElegantOTA.begin(&server);    // Start ElegantOTA
@@ -156,6 +207,9 @@ void setup(void) {
   ElegantOTA.onStart(onOTAStart);
   ElegantOTA.onProgress(onOTAProgress);
   ElegantOTA.onEnd(onOTAEnd);
+
+  //ElegantOTA.setID("Holiday");
+  //ElegantOTA.setFWVersion("0.1");
 
   server.begin();
   Serial.println("HTTP server started");
