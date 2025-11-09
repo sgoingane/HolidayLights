@@ -28,115 +28,63 @@
 */
 
 
-#if defined(ESP8266)
-  #include <ESP8266WiFi.h>
-  #include <WiFiClient.h>
-  #include <ESP8266WebServer.h>
-#elif defined(ESP32)
-  #include <WiFi.h>
-  #include <WiFiClient.h>
-  #include <WebServer.h>
-#elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
-  #include <WiFi.h>
-  #include <WiFiClient.h>
-  #include <WiFiServer.h>
-  #include <WebServer.h>
-#endif
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiUdp.h>
+#include <NTPClient.h>
+#include <ESP8266WebServer.h>
 
 #include <Adafruit_NeoPixel.h>
 #include <ElegantOTA.h>
 
+#include "Pages.h"
+#include "TaskScheduler.h"
 #include "LedEffects.h"
 
-//#define LEDS_ON // MAIN LED STRIP CONTROL
-
-#define LED_DPIN 5
-#define NUM_PIXELS 94
-#define MAX_BRIGHTNESS 100
+#define DEBUG_ON
+#define SERIAL_PRINT
 
 const char* ssid = "SSID";
 const char* password = "PASSWD";
 
-const int ESP_BUILTIN_LED = 2;
 
-static bool showLeds_ = false;
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
-#if defined(ESP8266)
-  ESP8266WebServer server(80);
-#elif defined(ESP32)
-  WebServer server(80);
-#elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
-  WebServer server(80);
-#endif
-
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
+task tasks[3];
 
 unsigned long ota_progress_millis = 0;
 
-//uint32_t ORANGE = pixels.Color(255, 0, 64);
-//uint32_t PURPLE = pixels.Color(89, 10, 153);
+void logMsg(const char* format, ...) {
+  char msgBuff[MAX_LOG_BUFF_SIZE];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(msgBuff, sizeof(msgBuff), format, args);
+  va_end(args);
 
-uint32_t ORANGE = pixels.Color(128, 40, 0);
-uint32_t PURPLE = pixels.Color(128, 0, 128);
+  messageLog += String(msgBuff) + "\n";
 
-const char* html = "<html><head>"
-                   "<title>Holiday Light Control</title>"
-                   "<style>"
-                   "body { font-family: Arial, sans-serif; background-color: #1A1A1A; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }"
-                   ".container { text-align: center; width: 30%; }"
-                   ".switch { position: relative; display: inline-block; width: 60px; height: 34px; }"
-                   ".switch input { opacity: 0; width: 0; height: 0; }"
-                   ".slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #B0B0B0; transition: .4s; border-radius: 34px; }"
-                   ".slider:before { position: absolute; content: ''; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }"
-                   "input:checked + .slider { background-color: #5a2d92; }"
-                   "input:checked + .slider:before { transform: translateX(26px); }"
-                   ".button { background-color: purple; color: white; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer; font-size: 16px; width: 100%; }"
-                   ".button:hover { background-color: #5a2d92; }"
-                   "</style>"
-                   "</head><body>"
-                   "<div class=\"container\">"
-                   "<h1>LED Control</h1>"
-                   "<label class=\"switch\"><input type=\"checkbox\" id=\"toggleBtn\" onchange=\"toggleLED()\">"
-                   "<span class=\"slider\"></span></label>"
-                   "<script>"
-                   "function toggleLED() {"
-                   "var toggle = document.getElementById('toggleBtn');"
-                   "if (toggle.checked) {"
-                   "location.href='/on';"
-                   "} else {"
-                   "location.href='/off';"
-                   "}"
-                   "}"
-                   "</script>"
-                   "</div>"
-                   "</body></html>";
-
-void ledStrip() {
-  if (showLeds_) {
-    pixels.setBrightness(MAX_BRIGHTNESS);
-
-    for (int i = 0; i < NUM_PIXELS; i++) {
-      if (i % 8 < 4) {
-        pixels.setPixelColor(i, ORANGE);
-      } else {
-        pixels.setPixelColor(i, PURPLE);
-      }
+  while (messageLog.length() > maxLogSize) {
+    int truncateIdx = messageLog.indexOf('\n') + 1;
+    if (truncateIdx > 0) {
+      messageLog.remove(0, truncateIdx);
+    } else {
+      messageLog = "";
     }
-    pixels.show();
-    delay(5000);
-  } else {
-    pixels.setBrightness(0);
-    pixels.clear();
-    pixels.show();
-    delay(5000);
   }
+
+#ifdef SERIAL_PRINT
+  Serial.print(msgBuff);
+#endif
 }
 
-void blinkLed(int timeOn, int timeOff) {
-  digitalWrite(ESP_BUILTIN_LED, HIGH);
-  delay(timeOn);
-  digitalWrite(ESP_BUILTIN_LED, LOW);
-  delay(timeOff);
+void printTime() {
+  unsigned long epochTime = timeClient.getEpochTime();
+  struct tm* ptm = gmtime((time_t*)&epochTime);
+
+#ifdef DEBUG_ON
+  logMsg("Current time: %s\n", timeClient.getFormattedTime());
+#endif
 }
 
 void onOTAStart() {
@@ -156,12 +104,11 @@ void onOTAProgress(size_t current, size_t final) {
 void onOTAEnd(bool success) {
   // Log when OTA has finished
   if (success) {
-    Serial.println("OTA update finished successfully!");
+    logMsg("OTA update finished successfully!\n");
   } else {
-    Serial.println("There was an error during OTA update!");
+    logMsg("There was an error during OTA update!\n");
   }
   // <Add your own code here>
-
 }
 
 void setup(void) {
@@ -170,44 +117,50 @@ void setup(void) {
   pixels.setBrightness(0);
   pixels.show();
 
+#ifdef SERIAL_PRINT
   Serial.begin(115200);
+  Serial.println("");
+#endif
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.println("");
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
+
+#ifdef SERIAL_PRINT
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+#endif
+
+  timeClient.begin();
+  timeClient.setTimeOffset(-25200);  // UTC +7 Phoenix
 
   // Define routes
-  server.on("/", []() {
-    String htmlResponse = html;
-    if (showLeds_) {
-      htmlResponse.replace("id=\"toggleBtn\"", "id=\"toggleBtn\" checked");
-    }
-    server.send(200, "text/html", htmlResponse);
-  });
+  server.on("/", handleMainPage);
+  server.on("/log", handleLogPage);
 
   server.on("/on", []() {
     showLeds_ = true;
-    server.sendHeader("Location", "/"); // root redirect
+    server.sendHeader("Location", "/");  // root redirect
     server.send(303);
   });
 
   server.on("/off", []() {
     showLeds_ = false;
-    server.sendHeader("Location", "/"); // root redirect
+    server.sendHeader("Location", "/");  // root redirect
     server.send(303);
   });
 
-  ElegantOTA.begin(&server);    // Start ElegantOTA
+
+
+  ElegantOTA.begin(&server);  // Start ElegantOTA
   // ElegantOTA callbacks
   ElegantOTA.onStart(onOTAStart);
   ElegantOTA.onProgress(onOTAProgress);
@@ -217,24 +170,41 @@ void setup(void) {
   //ElegantOTA.setFWVersion("0.1");
 
   server.begin();
-  Serial.println("HTTP server started");
+  logMsg("HTTP server started\n");
 
   pinMode(ESP_BUILTIN_LED, OUTPUT);
   digitalWrite(ESP_BUILTIN_LED, LOW);
 
-  for (unsigned int i=0; i<4; i++) {
-    blinkLed(200, 100);
+  // Initialization onboard flash
+  for (unsigned int i = 0; i < 4; i++) {
+    blinkOnboardLed(100);
+    delay(80);
   }
   digitalWrite(ESP_BUILTIN_LED, LOW);
+
+  // Setup tasks
+  tasks[0].name = "heartbeat";
+  tasks[0].period = 3000;
+  tasks[0].handler = &onboardLed;
+
+  tasks[1].name = "timeprint";
+  tasks[1].period = 5000;
+  tasks[1].handler = &printTime;
+
+  tasks[2].name = "ledeffect";
+  tasks[2].period = 8000;
+  tasks[2].handler = &ledStrip;
 }
 
+static unsigned int tickTime_ = 0;
 void loop(void) {
+  timeClient.update();
+
   server.handleClient();
   ElegantOTA.loop();
 
-  // Onboard LED heartbeat
-  blinkLed(700, 300);
-  blinkLed(700, 1500);
-
-  ledStrip();
+  tickTime_ = millis() - tickTime_;
+  for (unsigned int i = 0; i < sizeof(tasks) / sizeof(tasks[0]); i++) {
+    tasks[i].tick(tickTime_);
+  }
 }
