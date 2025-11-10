@@ -29,63 +29,21 @@
 
 
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <WiFiUdp.h>
-#include <NTPClient.h>
 #include <ESP8266WebServer.h>
 
 #include <Adafruit_NeoPixel.h>
 #include <ElegantOTA.h>
 
+#include "Constants.h"
 #include "Pages.h"
+#include "Helpers.h"
 #include "TaskScheduler.h"
 #include "LedEffects.h"
 
-#define DEBUG_ON
 #define SERIAL_PRINT
 
 const char* ssid = "SSID";
 const char* password = "PASSWD";
-
-
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org");
-
-task tasks[3];
-
-unsigned long ota_progress_millis = 0;
-
-void logMsg(const char* format, ...) {
-  char msgBuff[MAX_LOG_BUFF_SIZE];
-  va_list args;
-  va_start(args, format);
-  vsnprintf(msgBuff, sizeof(msgBuff), format, args);
-  va_end(args);
-
-  messageLog += String(msgBuff) + "\n";
-
-  while (messageLog.length() > maxLogSize) {
-    int truncateIdx = messageLog.indexOf('\n') + 1;
-    if (truncateIdx > 0) {
-      messageLog.remove(0, truncateIdx);
-    } else {
-      messageLog = "";
-    }
-  }
-
-#ifdef SERIAL_PRINT
-  Serial.print(msgBuff);
-#endif
-}
-
-void printTime() {
-  unsigned long epochTime = timeClient.getEpochTime();
-  struct tm* ptm = gmtime((time_t*)&epochTime);
-
-#ifdef DEBUG_ON
-  logMsg("Current time: %s\n", timeClient.getFormattedTime());
-#endif
-}
 
 void onOTAStart() {
   // Log when OTA has started
@@ -188,7 +146,7 @@ void setup(void) {
   tasks[0].handler = &onboardLed;
 
   tasks[1].name = "timeprint";
-  tasks[1].period = 5000;
+  tasks[1].period = 600000;
   tasks[1].handler = &printTime;
 
   tasks[2].name = "ledeffect";
@@ -196,15 +154,16 @@ void setup(void) {
   tasks[2].handler = &ledStrip;
 }
 
-static unsigned int tickTime_ = 0;
+static unsigned int prevTime_ = 0;
 void loop(void) {
   timeClient.update();
 
   server.handleClient();
   ElegantOTA.loop();
 
-  tickTime_ = millis() - tickTime_;
+  unsigned long tickTime_ = millis() - prevTime_;
   for (unsigned int i = 0; i < sizeof(tasks) / sizeof(tasks[0]); i++) {
     tasks[i].tick(tickTime_);
   }
+  prevTime_ = millis();
 }

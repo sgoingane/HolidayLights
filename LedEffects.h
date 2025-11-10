@@ -2,6 +2,7 @@
 #define LED_EFFECTS_H
 
 #include "Constants.h"
+#include "Helpers.h"
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
 
@@ -17,7 +18,7 @@ void blinkOnboardLed(int timeOn) {
 
 void onboardLed() {
 #ifdef DEBUG_ON
-  logMsg("Heartbeat! ");
+  logMsg("Heartbeat at time: %s\n", timeClient.getFormattedTime());
   Serial.print("I'm alive at ");
   Serial.println(WiFi.localIP());
 #endif
@@ -75,13 +76,18 @@ void setGradient() {
 
 // SEQUENCES
 void ledStrip() {
-#ifdef DEBUG
+#ifdef DEBUG_ON
   logMsg("LED write at time: %s\n", timeClient.getFormattedTime());
 #endif
 
 /* THANKSGIVING */
   if (showLeds_) {
     setGradient();
+  } else {
+    pixels.setBrightness(0);
+    pixels.clear();
+    pixels.show();
+    delay(5000);
   }
 
 /* HALLOWEEN 

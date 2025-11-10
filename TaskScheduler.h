@@ -1,3 +1,6 @@
+#ifndef TASK_SCHEDULER_H
+#define TASK_SCHEDULER_H
+
 typedef struct {
   String name;
   unsigned long period = 0;
@@ -21,3 +24,5 @@ typedef struct {
 
 String weekdays[7] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 String months[12] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+
+#endif
