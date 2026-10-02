@@ -4,10 +4,17 @@
 #include "Constants.h"
 #include "Helpers.h"
 
+// NEW
+
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
 
-const uint32_t ORANGE = pixels.Color(128, 40, 0);
-const uint32_t PURPLE = pixels.Color(128, 0, 128);
+const uint32_t WHITE  = pixels.Color(128, 128, 128);
+const uint32_t RED    = pixels.Color(128,   0,   0);
+const uint32_t PINK   = pixels.Color(128,   0, 128);
+const uint32_t GREEN  = pixels.Color(  0, 128,   0);
+const uint32_t ORANGE = pixels.Color(128,  40,   0);
+const uint32_t BLUE   = pixels.Color(  0,   0, 128);
+const uint32_t PURPLE = pixels.Color( 64,   0, 128);
 
 // ONBOARD LED FUNCTIONS
 void blinkOnboardLed(int timeOn) {
@@ -80,36 +87,86 @@ void ledStrip() {
   logMsg("LED write at time: %s\n", timeClient.getFormattedTime());
 #endif
 
-/* THANKSGIVING */
   if (showLeds_) {
-    setGradient();
-  } else {
-    pixels.setBrightness(0);
-    pixels.clear();
-    pixels.show();
-    delay(5000);
-  }
-
-/* HALLOWEEN 
-  if (showLeds_) {
+#ifdef INDEPENDENCE_DAY
     pixels.setBrightness(MAX_BRIGHTNESS);
 
-    for (int i = 0; i < NUM_PIXELS; i++) {
-      if (i % 8 < 4) {
-        pixels.setPixelColor(i, ORANGE);
+    for (int i = NUM_PIXELS; i >= 0; i--) {
+      if (i > floor(2*NUM_PIXELS / 3)) {
+        if (i%4) {
+          pixels.setPixelColor(i, BLUE);
+        } else {
+          pixels.setPixelColor(i, WHITE);
+        }
       } else {
-        pixels.setPixelColor(i, PURPLE);
+        if (int(i/2 + 1) % 2) {
+          pixels.setPixelColor(i, RED);
+        } else {
+          pixels.setPixelColor(i, WHITE);
+        }
       }
     }
     pixels.show();
-    delay(5000);
+#endif
+
+#ifdef VALENTINES
+    pixels.setBrightness(MAX_BRIGHTNESS);
+
+    for (int i = 0; i < NUM_PIXELS; i++) {
+      if (i % 9 < 3) {
+        pixels.setPixelColor(i, RED);
+      } else if (i % 9 < 6) {
+        pixels.setPixelColor(i, PURPLE);
+      } else {
+        pixels.setPixelColor(i, PINK);
+      }
+    }
+    pixels.show();
+#endif
+
+#ifdef CHRISTMAS
+    if (showLeds_) {
+      pixels.setBrightness(MAX_BRIGHTNESS);
+
+      for (int i = 0; i < NUM_PIXELS; i++) {
+        if (i % 8 < 4) {
+          pixels.setPixelColor(i, RED);
+        } else {
+          pixels.setPixelColor(i, GREEN);
+        }
+      }
+      pixels.show();
+#endif
+
+#ifdef THANKSGIVING
+    if (showLeds_) {
+      setGradient();
+    }
+#endif
+
+#ifdef HALLOWEEN 
+    if (showLeds_) {
+      pixels.setBrightness(MAX_BRIGHTNESS);
+
+      for (int i = 0; i < NUM_PIXELS; i++) {
+        if (i % 8 < 4) {
+          pixels.setPixelColor(i, ORANGE);
+        } else {
+          pixels.setPixelColor(i, PURPLE);
+        }
+      }
+      pixels.show();
+      delay(5000);
+    }
+#endif
   } else {
     pixels.setBrightness(0);
     pixels.clear();
     pixels.show();
     delay(5000);
   }
-  */
+
+
 }
 
 #endif
