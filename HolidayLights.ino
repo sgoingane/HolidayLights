@@ -45,6 +45,7 @@
 #include "Helpers.h"
 #include "TaskScheduler.h"
 #include "LedEffects.h"
+#include "Secrets.h"
 
 #define SERIAL_PRINT
 
@@ -87,7 +88,7 @@ void setup(void) {
 #endif
 
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.begin(WIFI_SSD, WIFI_PASSWD);
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
@@ -98,7 +99,7 @@ void setup(void) {
 #ifdef SERIAL_PRINT
   Serial.println("");
   Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.println(WIFI_SSD);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 #endif
