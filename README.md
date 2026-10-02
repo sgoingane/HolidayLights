@@ -20,8 +20,8 @@ Small ESP8266 project for controlling holiday LED lights over the local network.
 1. Open this project in Arduino IDE 2.3.6.
 2. Install required libraries: `Adafruit NeoPixel`, `ElegantOTA`, `NTPClient`.
 3. Add your Wi-Fi credentials in `Secrets.h` (or update the constants used by the sketch).
-4. Select the correct ESP8266 board and COM port.
-5. Upload sketch and open the device IP in a browser.
+4. Select the correct ESP8266 board (Generic ESP8266 Module) and COM port.
+5. Compile and upload sketch binary at the device IP in a browser ('http://<your-ip>/update').
 
 ## Usage
 - Visit the ESP8266 IP address.
