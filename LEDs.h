@@ -4,8 +4,6 @@
 #include "Constants.h"
 #include "Helpers.h"
 
-// NEW
-
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
 
 const uint32_t WHITE  = pixels.Color(128, 128, 128);

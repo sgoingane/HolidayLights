@@ -1,32 +1,3 @@
-/*
-  -----------------------
-  ElegantOTA - Demo Example
-  -----------------------
-
-  Skill Level: Beginner
-
-  This example provides with a bare minimal app with ElegantOTA functionality.
-
-  Github: https://github.com/ayushsharma82/ElegantOTA
-  WiKi: https://docs.elegantota.pro
-
-  Works with following hardware:
-  - ESP8266
-  - ESP32
-  - RP2040 (with WiFi) (Example: Raspberry Pi Pico W)
-
-
-  Important note for RP2040 users:
-  - RP2040 requires LittleFS partition for the OTA updates to work. Without LittleFS partition, OTA updates will fail.
-    Make sure to select Tools > Flash Size > "2MB (Sketch 1MB, FS 1MB)" option.
-  - If using bare RP2040, it requires WiFi module like Pico W for ElegantOTA to work.
-
-  -------------------------------
-
-  Upgrade to ElegantOTA Pro: https://elegantota.pro
-
-*/
-
 #undef VALENTINES
 #undef INDEPENDENCE
 #define HALLOWEEN
@@ -43,8 +14,9 @@
 #include "Constants.h"
 #include "Pages.h"
 #include "Helpers.h"
-#include "TaskScheduler.h"
-#include "LedEffects.h"
+#include "Tasks.h"
+#include "LEDs.h"
+#include "OTA.h"
 #include "Secrets.h"
 
 #define SERIAL_PRINT
@@ -52,31 +24,8 @@
 const char* ssid = "SSID";
 const char* password = "PASSWD";
 
-void onOTAStart() {
-  // Log when OTA has started
-  Serial.println("OTA update started!");
-  // <Add your own code here>
-}
-
-void onOTAProgress(size_t current, size_t final) {
-  // Log every 1 second
-  if (millis() - ota_progress_millis > 1000) {
-    ota_progress_millis = millis();
-    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
-  }
-}
-
-void onOTAEnd(bool success) {
-  // Log when OTA has finished
-  if (success) {
-    logMsg("OTA update finished successfully!\n");
-  } else {
-    logMsg("There was an error during OTA update!\n");
-  }
-  // <Add your own code here>
-}
-
 void setup(void) {
+  // Configure and initialize LED strip object
   pixels.begin();
   pixels.clear();
   pixels.setBrightness(0);
@@ -123,24 +72,17 @@ void setup(void) {
     server.send(303);
   });
 
-
-
-  ElegantOTA.begin(&server);  // Start ElegantOTA
-  // ElegantOTA callbacks
-  ElegantOTA.onStart(onOTAStart);
-  ElegantOTA.onProgress(onOTAProgress);
-  ElegantOTA.onEnd(onOTAEnd);
-
-  //ElegantOTA.setID("Holiday");
-  //ElegantOTA.setFWVersion("0.1");
+  // Start OTA reprogramming server
+  ElegantOTA.begin(&server);
+  setupOTACallbacks();
 
   server.begin();
   logMsg("HTTP server started\n");
 
+  // Blink LED four times to show setup complete
   pinMode(ESP_BUILTIN_LED, OUTPUT);
   digitalWrite(ESP_BUILTIN_LED, LOW);
 
-  // Initialization onboard flash
   for (unsigned int i = 0; i < 4; i++) {
     blinkOnboardLed(100);
     delay(80);
