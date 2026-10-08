@@ -1,2 +1,5 @@
 build/
+esp8266_board/esp8266_board-backups/
+fp-info-cache
 Secrets.h
+*.lck
