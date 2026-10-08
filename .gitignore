@@ -1,5 +1,6 @@
 build/
 esp8266_board/esp8266_board-backups/
 fp-info-cache
+*_autosave*
 Secrets.h
 *.lck
