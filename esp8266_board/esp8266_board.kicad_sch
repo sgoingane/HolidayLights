@@ -1893,13 +1893,33 @@
 	)
 	(wire
 		(pts
-			(xy 130.81 88.9) (xy 144.78 88.9)
+			(xy 130.81 80.01) (xy 130.81 86.36)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1b2bc13c-f632-4931-967b-4cbcf77c425c")
+		(uuid "11aba8e1-a0de-411b-a0e2-486629393a53")
+	)
+	(wire
+		(pts
+			(xy 129.54 88.9) (xy 144.78 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1e8f3a2d-356b-4bad-a0e4-c1bc2828df9a")
+	)
+	(wire
+		(pts
+			(xy 129.54 82.55) (xy 129.54 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24be50b2-89c5-41bc-9211-3b0960542b39")
 	)
 	(wire
 		(pts
@@ -1913,13 +1933,23 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 82.55) (xy 132.08 82.55)
+			(xy 124.46 80.01) (xy 130.81 80.01)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "342184f9-dac4-4bfe-b203-4e2de6aad57f")
+		(uuid "2fee22fb-8ba3-46e1-b05c-f664544842f4")
+	)
+	(wire
+		(pts
+			(xy 130.81 86.36) (xy 144.78 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3353f880-8af1-4cd6-ba8a-955f535838bc")
 	)
 	(wire
 		(pts
@@ -1960,16 +1990,6 @@
 			(type default)
 		)
 		(uuid "43292e17-c2d6-4d75-94c9-a59f5ad96bc3")
-	)
-	(wire
-		(pts
-			(xy 124.46 80.01) (xy 130.81 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "439994c5-9961-40c3-92ab-6e5f33c90728")
 	)
 	(wire
 		(pts
@@ -2030,16 +2050,6 @@
 			(type default)
 		)
 		(uuid "594d20a1-766b-44f9-bc4c-032ede77fe05")
-	)
-	(wire
-		(pts
-			(xy 130.81 80.01) (xy 130.81 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5eabc1ba-6d67-4127-911f-03c43d674c74")
 	)
 	(wire
 		(pts
@@ -2150,16 +2160,6 @@
 			(type default)
 		)
 		(uuid "8403a092-257f-4223-b4f1-2c2db0966794")
-	)
-	(wire
-		(pts
-			(xy 132.08 82.55) (xy 132.08 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8f9829ec-0395-4a01-bc1a-e42608462eaf")
 	)
 	(wire
 		(pts
@@ -2293,16 +2293,6 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 86.36) (xy 144.78 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c1b35bc9-085d-4166-8bee-8b84e99151f1")
-	)
-	(wire
-		(pts
 			(xy 93.98 74.93) (xy 93.98 93.98)
 		)
 		(stroke
@@ -2423,6 +2413,16 @@
 	)
 	(wire
 		(pts
+			(xy 124.46 82.55) (xy 129.54 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f42e2697-e856-470f-84a4-80a58a9b96b0")
+	)
+	(wire
+		(pts
 			(xy 144.78 77.47) (xy 142.24 77.47)
 		)
 		(stroke
@@ -2486,7 +2486,7 @@
 				)
 			)
 		)
-		(property "Footprint" "LED_THT:LED_D1.8mm_W1.8mm_H2.4mm_Horizontal_O1.27mm_Z1.6mm"
+		(property "Footprint" "LED_THT:LED_D5.0mm"
 			(at 82.55 95.25 0)
 			(effects
 				(font
@@ -2675,7 +2675,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal"
+		(property "Footprint" "TerminalBlock:TerminalBlock_Xinya_XY308-2.54-2P_1x02_P2.54mm_Horizontal"
 			(at 149.86 77.47 0)
 			(effects
 				(font
@@ -2746,7 +2746,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_1.00mm:PinHeader_1x08_P1.00mm_Vertical"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical"
 			(at 149.86 91.44 0)
 			(effects
 				(font
@@ -3107,7 +3107,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-4-2.54_1x04_P2.54mm_Horizontal"
+		(property "Footprint" "TerminalBlock:TerminalBlock_Xinya_XY308-2.54-4P_1x04_P2.54mm_Horizontal"
 			(at 149.86 68.58 0)
 			(effects
 				(font
