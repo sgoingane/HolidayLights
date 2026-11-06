@@ -122,6 +122,19 @@ void ledStrip() {
     pixels.show();
 #endif
 
+#ifdef COWBOYS
+    pixels.setBrightness(MAX_BRIGHTNESS);
+
+    for (int i = 0; i < NUM_PIXELS; i++) {
+      if (i % 9 < 6) {
+        pixels.setPixelColor(i, WHITE);
+      } else {
+        pixels.setPixelColor(i, BLUE);
+      }
+    }
+    pixels.show();
+#endif
+
 #ifdef CHRISTMAS
     if (showLeds_) {
       pixels.setBrightness(MAX_BRIGHTNESS);
