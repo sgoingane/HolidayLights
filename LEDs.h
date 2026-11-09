@@ -4,8 +4,10 @@
 #include "Constants.h"
 #include "Helpers.h"
 
+LedControl matrix(14,16,12,1);
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
 
+const uint32_t BLACK  = pixels.Color(  0,   0,   0);
 const uint32_t WHITE  = pixels.Color(128, 128, 128);
 const uint32_t RED    = pixels.Color(128,   0,   0);
 const uint32_t PINK   = pixels.Color(128,   0, 128);
@@ -22,15 +24,19 @@ void blinkOnboardLed(int timeOn) {
 }
 
 void onboardLed() {
-#ifdef DEBUG_ON
-  logMsg("Heartbeat at time: %s\n", timeClient.getFormattedTime());
-  Serial.print("I'm alive at ");
-  Serial.println(WiFi.localIP());
-#endif
-
   blinkOnboardLed(350);
   delay(100);
   blinkOnboardLed(350);
+}
+
+void dotMatrix() {
+  for (int row = 0; row < 8; row++) {
+    if (showMatrix_) {
+      matrix.setRow(0, row, pattern[row]);
+    } else {
+      matrix.setRow(0, row, B00000000);
+    }
+  }
 }
 
 // LED STRIP EFFECTS
@@ -81,11 +87,7 @@ void setGradient() {
 
 // SEQUENCES
 void ledStrip() {
-#ifdef DEBUG_ON
-  logMsg("LED write at time: %s\n", timeClient.getFormattedTime());
-#endif
-
-  if (showLeds_) {
+  if (showLeds_ && schedActive_) {
 #ifdef INDEPENDENCE_DAY
     pixels.setBrightness(MAX_BRIGHTNESS);
 
@@ -123,38 +125,53 @@ void ledStrip() {
 #endif
 
 #ifdef CHRISTMAS
-    if (showLeds_) {
-      pixels.setBrightness(MAX_BRIGHTNESS);
+    pixels.setBrightness(MAX_BRIGHTNESS);
 
-      for (int i = 0; i < NUM_PIXELS; i++) {
-        if (i % 8 < 4) {
-          pixels.setPixelColor(i, RED);
-        } else {
-          pixels.setPixelColor(i, GREEN);
-        }
+    for (int i = 0; i < NUM_PIXELS; i++) {
+      if (i % 8 < 4) {
+        pixels.setPixelColor(i, RED);
+      } else {
+        pixels.setPixelColor(i, GREEN);
       }
-      pixels.show();
+    }
+    pixels.show();
 #endif
 
 #ifdef THANKSGIVING
-    if (showLeds_) {
-      setGradient();
-    }
+    setGradient();
 #endif
 
 #ifdef HALLOWEEN 
-    if (showLeds_) {
-      pixels.setBrightness(MAX_BRIGHTNESS);
+    pixels.setBrightness(MAX_BRIGHTNESS);
 
-      for (int i = 0; i < NUM_PIXELS; i++) {
-        if (i % 8 < 4) {
-          pixels.setPixelColor(i, ORANGE);
-        } else {
-          pixels.setPixelColor(i, PURPLE);
-        }
-      }
+    // EYES
+    pixels.fill(PURPLE);
+    for (int i = 0; i < 8; i++) {
+      pixels.fill(ORANGE, NUM_PIXELS/3-3, 11);
+      pixels.setPixelColor(NUM_PIXELS/3 - 2 + i, BLACK);
+      pixels.setPixelColor(NUM_PIXELS/3 - 2 + i + 1, BLACK);
+
+      pixels.fill(ORANGE, 2*NUM_PIXELS/3-3, 11);
+      pixels.setPixelColor(2*NUM_PIXELS/3 - 2 + i, BLACK);
+      pixels.setPixelColor(2*NUM_PIXELS/3 - 2 + i + 1, BLACK);
+
       pixels.show();
-      delay(5000);
+      delay(50);
+    }
+
+    delay(800);
+
+    for (int i = 7; i >= 0; i--) {
+      pixels.fill(ORANGE, NUM_PIXELS/3-3, 11);
+      pixels.setPixelColor(NUM_PIXELS/3 - 2 + i, BLACK);
+      pixels.setPixelColor(NUM_PIXELS/3 - 2 + i + 1, BLACK);
+
+      pixels.fill(ORANGE, 2*NUM_PIXELS/3-3, 11);
+      pixels.setPixelColor(2*NUM_PIXELS/3 - 2 + i, BLACK);
+      pixels.setPixelColor(2*NUM_PIXELS/3 - 2 + i + 1, BLACK);
+ 
+      pixels.show();
+      delay(50);
     }
 #endif
   } else {
@@ -163,8 +180,6 @@ void ledStrip() {
     pixels.show();
     delay(5000);
   }
-
-
 }
 
 #endif

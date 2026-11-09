@@ -26,8 +26,8 @@ void setupOTACallbacks() {
   ElegantOTA.onProgress(onOTAProgress);
   ElegantOTA.onEnd(onOTAEnd);
 
-  //ElegantOTA.setID("Holiday");
-  //ElegantOTA.setFWVersion("0.1");
+  // ElegantOTA.setID("HolidayLights");
+  // ElegantOTA.setFWVersion("1.0.0");
 }
 
 #endif // OTA_H
