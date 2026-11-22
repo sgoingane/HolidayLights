@@ -19,9 +19,6 @@
 #define RELAY1_PIN 0        // D3
 #define RELAY2_PIN 4        // D2
 
-#define NUM_PIXELS 94
-#define MAX_BRIGHTNESS 100
-
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
 String messageLog;
@@ -40,10 +37,12 @@ byte pattern[8] = {
 
 unsigned long ota_progress_millis = 0;
 
+
 const int ESP_BUILTIN_LED = 2;
 const int MAX_LOG_BUFF_SIZE = 256;
-const int TIME_ON = (5.5 + 12)*60;    // 6:30pm
+const int TIME_ON = (4.5 + 12)*60;    // 4:30pm
 const int TIME_OFF = (11 + 12)*60;    // 11:00pm
+const int LED_PERIOD = 100;
 const long TIME_ZONE_OFFSET_SECONDS = -25200;
 const float SUNRISE_LATITUDE = 33.4484;
 const float SUNRISE_LONGITUDE = -112.0740;
@@ -51,8 +50,9 @@ int TIME_SUNRISE = 6 * 60;
 int TIME_SUNSET = 18 * 60;
 const unsigned int maxLogSize = 4096; // bytes
 
-static bool showLeds_ = false;
+static bool showLeds_ = true;
 static bool showMatrix_ = false;
+static bool testActive_ = false;
 static bool schedActive_ = false;
 static bool relayOneActive_ = false;
 static bool relayTwoActive_ = false;

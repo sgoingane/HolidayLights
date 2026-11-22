@@ -36,6 +36,7 @@ ESP8266 firmware for controlling a holiday LED strip from a browser. It provides
 
 - Use the slider on the main page to turn the LEDs on or off.
 - Use the numbered clock buttons at 04:00 and 05:00 to toggle Relay 1 and Relay 2. The grid button toggles the LED matrix display.
+- Use the beaker button to test the LED strip independently of the main toggle and schedule.
 - Open `/log` to view runtime messages. The log scrolls within the page.
 - To move from setup mode to home Wi-Fi, compile a new build with both `WIFI_SSD` and `WIFI_PASSWD` defined. While the device is still running setup-mode firmware, connect to its hotspot, open `http://192.168.4.1/update`, and upload the new build. After reboot, it joins the configured home network and serves the lighting controls.
 - OTA is available only in AP setup builds. A build with home Wi-Fi credentials does not expose OTA; future updates require USB upload or another AP-mode provisioning build.

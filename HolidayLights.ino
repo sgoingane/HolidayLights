@@ -1,7 +1,7 @@
 #undef VALENTINES
 #undef INDEPENDENCE
-#define HALLOWEEN
-#undef THANKSGIVING
+#undef HALLOWEEN
+#define THANKSGIVING
 #undef CHRISTMAS
 
 
@@ -80,6 +80,16 @@ void setup(void) {
     server.sendHeader("Location", "/");
     server.send(303);
   });
+  server.on("/test/on", []() {
+    testActive_ = true;
+    server.sendHeader("Location", "/");
+    server.send(303);
+  });
+  server.on("/test/off", []() {
+    testActive_ = false;
+    server.sendHeader("Location", "/");
+    server.send(303);
+  });
   server.on("/relay1/on", []() {
     relayOneActive_ = true;
     digitalWrite(RELAY1_PIN, LOW);
@@ -122,7 +132,7 @@ void setup(void) {
 
   // Setup tasks
   tasks[0].name = "heartbeat";
-  tasks[0].period = 3000;
+  tasks[0].period = 10000;
   tasks[0].handler = &onboardLed;
 
   tasks[1].name = "timeprint";
@@ -130,7 +140,7 @@ void setup(void) {
   tasks[1].handler = &printTime;
 
   tasks[2].name = "ledeffect";
-  tasks[2].period = 4000;
+  tasks[2].period = LED_PERIOD;
   tasks[2].handler = &ledStrip;
 
   tasks[3].name = "sun-times";

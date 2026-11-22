@@ -12,6 +12,7 @@ void handleMainPage() {
   String relayOneStateClass = relayOneActive_ ? " active" : "";
   String relayTwoStateClass = relayTwoActive_ ? " active" : "";
   String matrixStateClass = showMatrix_ ? " active" : "";
+  String testStateClass = testActive_ ? " active" : "";
   String scheduleStartTime = formatTime(TIME_ON);
   String scheduleEndTime = formatTime(TIME_OFF);
   String scheduleStartAngle = String((TIME_ON % 1440) * 0.25, 1);
@@ -94,8 +95,8 @@ void handleMainPage() {
         ".schedule-arc { background: conic-gradient(from var(--schedule-start), #C07D4D 0deg var(--schedule-sweep), transparent var(--schedule-sweep) 360deg); -webkit-mask: radial-gradient(circle closest-side, transparent 0 91.5%, #000 91.7% 92.5%, transparent 92.7%); mask: radial-gradient(circle closest-side, transparent 0 91.5%, #000 91.7% 92.5%, transparent 92.7%); }"
         ".schedule-marks { background: conic-gradient(from calc(var(--schedule-start) - .35deg), #C07D4D 0deg .7deg, transparent .7deg var(--schedule-sweep), #C07D4D var(--schedule-sweep) calc(var(--schedule-sweep) + .7deg), transparent calc(var(--schedule-sweep) + .7deg) 360deg); -webkit-mask: radial-gradient(circle closest-side, transparent 0 87%, #000 88% 94%, transparent 95%); mask: radial-gradient(circle closest-side, transparent 0 87%, #000 88% 94%, transparent 95%); }"
         ".clock-label { position: absolute; z-index: 2; color: rgba(255,255,255,.65); font-size: 11px; font-variant-numeric: tabular-nums; transform: translate(-50%, -50%); }"
-        ".label-00 { left: 50%; top: 1%; } .label-03 { left: 84%; top: 16%; } .label-06 { left: 99%; top: 50%; } .label-09 { left: 84%; top: 84%; }"
-        ".label-12 { left: 50%; top: 99%; } .label-15 { left: 16%; top: 84%; } .label-18 { left: 1%; top: 50%; } .label-21 { left: 16%; top: 16%; }"
+        ".label-00 { left: 50%; top: 1%; } .label-03 { left: 84.6%; top: 15.4%; } .label-06 { left: 99%; top: 50%; } .label-09 { left: 84.6%; top: 84.6%; }"
+        ".label-12 { left: 50%; top: 99%; } .label-15 { left: 15.4%; top: 84.6%; } .label-18 { left: 1%; top: 50%; } .label-21 { left: 15.4%; top: 15.4%; }"
         ".clock-links { position: fixed; z-index: 2; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, 100vh, max(70vmin, calc(var(--panel-diameter) + 72px))); height: min(100vw, 100vh, max(70vmin, calc(var(--panel-diameter) + 72px))); pointer-events: none; }"
         ".clock-link { position: absolute; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; box-sizing: border-box; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; background: #1A1A1A; color: #A0A0A0; text-decoration: none; pointer-events: auto; transform: translate(-50%, -50%); }"
         ".clock-link:hover, .clock-link:focus-visible, .clock-link:active { background: #5a2d92; color: white; outline: 2px solid white; outline-offset: 2px; }"
@@ -103,6 +104,7 @@ void handleMainPage() {
         ".clock-link-update { left: 74.5%; top: 92.4%; } .clock-link-log { left: 62.7%; top: 97.3%; }"
         ".clock-link-relay-one { left: 92.4%; top: 25.5%; } .clock-link-relay-two { left: 97.3%; top: 37.3%; }"
         ".clock-link-matrix { left: 74.5%; top: 7.6%; }"
+        ".clock-link-test { left: 62.7%; top: 2.7%; }"
         ".clock-link.active { background: #5a2d92; color: white; }"
         ".clock-hand { position: absolute; z-index: 1; left: 50%; bottom: 50%; transform-origin: 50% 100%; border-radius: 4px; }"
         ".hour-hand { width: 6px; height: calc(var(--panel-diameter) / 2 + 20px); background: var(--hour-color); transform: translateX(-50%) rotate(var(--hour-angle)); }"
@@ -135,6 +137,11 @@ void handleMainPage() {
         + String(showMatrix_ ? "/matrix/off" : "/matrix/on")
         + "\" aria-label=\"LED Matrix\" title=\"LED Matrix\">"
         "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"4\" width=\"6\" height=\"6\"/><rect x=\"14\" y=\"4\" width=\"6\" height=\"6\"/><rect x=\"4\" y=\"14\" width=\"6\" height=\"6\"/><rect x=\"14\" y=\"14\" width=\"6\" height=\"6\"/></svg>"
+        "</a>"
+        "<a class=\"clock-link clock-link-test" + testStateClass + "\" href=\""
+        + String(testActive_ ? "/test/off" : "/test/on")
+        + "\" aria-label=\"Test LED Strip\" title=\"Test LED Strip\">"
+        "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3\"/><path d=\"M7.5 15h9\"/></svg>"
         "</a>"
         "</nav>"
         "<div class=\"container\">"

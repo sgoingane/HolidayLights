@@ -5,7 +5,27 @@
 #include "Helpers.h"
 
 LedControl matrix(14,16,12,1);
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
+
+#define LED_STRIP
+#undef LED_STRAND
+
+#if defined(LED_STRIP)
+  // House Lights: WS2811 Addressable LED Light Strip
+  #define NUM_PIXELS 94
+  Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_BRG + NEO_KHZ800);
+#elif defined(LED_STRAND)
+  // Christmas Tree: WS2811 Addressable LED Light Strand
+  #define NUM_PIXELS 200
+  Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, LED_DPIN, NEO_RGB + NEO_KHZ800);
+#endif
+
+#define MAX_BRIGHTNESS 100
+
+static uint16_t effectCnt = 0;
+static uint8_t currEffect = 0;
+static uint16_t hueOffset = 0;
+static uint8_t level[NUM_PIXELS] = {0};
+static int8_t direction[NUM_PIXELS] = {0};
 
 const uint32_t BLACK  = pixels.Color(  0,   0,   0);
 const uint32_t WHITE  = pixels.Color(128, 128, 128);
@@ -87,7 +107,7 @@ void setGradient() {
 
 // SEQUENCES
 void ledStrip() {
-  if (showLeds_ && schedActive_) {
+  if (testActive_ || (showLeds_ && schedActive_)) {
 #ifdef INDEPENDENCE_DAY
     pixels.setBrightness(MAX_BRIGHTNESS);
 
@@ -126,19 +146,109 @@ void ledStrip() {
 
 #ifdef CHRISTMAS
     pixels.setBrightness(MAX_BRIGHTNESS);
+    uint16_t step = 0;
 
-    for (int i = 0; i < NUM_PIXELS; i++) {
-      if (i % 8 < 4) {
-        pixels.setPixelColor(i, RED);
-      } else {
-        pixels.setPixelColor(i, GREEN);
-      }
+    switch (currEffect) {
+      case 0:
+        for (uint16_t i = 0; i < NUM_PIXELS; i++) {
+          uint16_t hue = hueOffset + (uint32_t)i * 65536 / NUM_PIXELS;
+          pixels.setPixelColor(i, pixels.ColorHSV(hue));
+        }
+
+        hueOffset -= 1024;  // Increase this for faster movement
+        if (effectCnt++ > 16 * 1000 / LED_PERIOD) {
+          effectCnt = 0;
+          currEffect = 1;
+        }
+        break;
+
+      case 1:
+        for (int i = 0; i < NUM_PIXELS; i++) {
+          if (i % 8 < 4) {
+            pixels.setPixelColor(i, RED);
+          } else {
+            pixels.setPixelColor(i, GREEN);
+          }
+        }
+        if (effectCnt++ > 6 * 1000 / LED_PERIOD) {
+          effectCnt = 0;
+          currEffect = 2;
+        }
+        break;
+
+      case 2:
+        // Occasionally start a twinkle on a random inactive LED.
+        step = random(NUM_PIXELS);
+        if (direction[step] == 0 && random(100) < 75) {
+          direction[step] = 1;  // Fade in
+        }
+
+        for (step = 0; step < NUM_PIXELS; step++) {
+          if (direction[step] == 1) {
+            if (level[step] < 255) {
+              level[step] = min(255, level[step] + 8);
+            } else {
+              direction[step] = -1;  // Fade out
+            }
+          } else if (direction[step] == -1) {
+            if (level[step] > 8) {
+              level[step] -= 8;
+            } else {
+              level[step] = 0;
+              direction[step] = 0;
+            }
+          }
+
+          pixels.setPixelColor(
+            step,
+            pixels.Color(
+              255 * level[step] / 255,
+              110 * level[step] / 255,
+              20  * level[step] / 255
+            )
+          );
+        }
+        if (effectCnt++ > 20 * 1000 / LED_PERIOD) {
+          effectCnt = 0;
+          currEffect = 0;
+        }
+        break;
+
+      default:
+        currEffect = 0;
+        break;
     }
+
     pixels.show();
 #endif
 
 #ifdef THANKSGIVING
-    setGradient();
+    pixels.setBrightness(MAX_BRIGHTNESS);
+
+    for (uint16_t i = 0; i < NUM_PIXELS; i++) {
+      if (level[i] == 0) {
+        level[i] = random(85, 255);
+      } else {
+        int change = random(-10, 11);
+        int nextBrightness = level[i] + change;
+
+        if (nextBrightness < 85) nextBrightness = 85;
+        if (nextBrightness > 255) nextBrightness = 255;
+
+        level[i] = nextBrightness;
+      }
+
+      pixels.setPixelColor(
+        i,
+        pixels.Color(
+          (uint32_t)255 * level[i] / 255,
+          (uint32_t)100 * level[i] / 255,
+          (uint32_t)15  * level[i] / 255
+        )
+      );
+    }
+
+    pixels.show();
 #endif
 
 #ifdef HALLOWEEN 
@@ -178,7 +288,6 @@ void ledStrip() {
     pixels.setBrightness(0);
     pixels.clear();
     pixels.show();
-    delay(5000);
   }
 }
 
