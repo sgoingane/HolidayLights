@@ -10,14 +10,14 @@
 #define DEBUG_ON
 
 // BOARD PINS
-#define LED_DPIN 5          // D1
+#define LED_DPIN 0          // D3
 #define DOT_MATRIX_CLK 16   // D0
 #define DOT_MATRIX_CS 12    // D6
 #define DOT_MATRIX_DIN 14   // D5
 #define ACT_BUTTON_PIN 13   // D7
 #define STATUS_LED_PIN 15   // D8
-#define RELAY1_PIN 0        // D3
-#define RELAY2_PIN 4        // D2
+#define RELAY1_PIN 4        // D2
+#define RELAY2_PIN 5        // D1
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
@@ -37,10 +37,9 @@ byte pattern[8] = {
 
 unsigned long ota_progress_millis = 0;
 
-
 const int ESP_BUILTIN_LED = 2;
 const int MAX_LOG_BUFF_SIZE = 256;
-const int TIME_ON = (4.5 + 12)*60;    // 4:30pm
+const int TIME_ON = (4 + 12)*60;    // 4:00pm
 const int TIME_OFF = (11 + 12)*60;    // 11:00pm
 const int LED_PERIOD = 100;
 const long TIME_ZONE_OFFSET_SECONDS = -25200;

@@ -1,8 +1,8 @@
 #undef VALENTINES
 #undef INDEPENDENCE
 #undef HALLOWEEN
-#define THANKSGIVING
-#undef CHRISTMAS
+#undef THANKSGIVING
+#define CHRISTMAS
 
 
 #include <ESP8266WiFi.h>

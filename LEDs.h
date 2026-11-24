@@ -6,8 +6,8 @@
 
 LedControl matrix(14,16,12,1);
 
-#define LED_STRIP
-#undef LED_STRAND
+#undef LED_STRIP
+#define LED_STRAND
 
 #if defined(LED_STRIP)
   // House Lights: WS2811 Addressable LED Light Strip
@@ -179,7 +179,7 @@ void ledStrip() {
       case 2:
         // Occasionally start a twinkle on a random inactive LED.
         step = random(NUM_PIXELS);
-        if (direction[step] == 0 && random(100) < 75) {
+        if (direction[step] == 0 && random(100) < 85) {
           direction[step] = 1;  // Fade in
         }
 
@@ -227,14 +227,24 @@ void ledStrip() {
 
     for (uint16_t i = 0; i < NUM_PIXELS; i++) {
       if (level[i] == 0) {
-        level[i] = random(85, 255);
+        level[i] = random(100, 220);
+        direction[i] = random(0, 2) ? 1 : -1;
       } else {
-        int change = random(-10, 11);
-        int nextBrightness = level[i] + change;
+        // Usually keep moving in the same direction; sometimes reverse.
+        if (random(100) < 15) {
+          direction[i] = -direction[i];
+        }
 
-        if (nextBrightness < 85) nextBrightness = 85;
+        int nextBrightness =
+          level[i] + direction[i] * random(3, 13);
+
+        // Occasional sharper flicker.
+        if (random(100) < 4) {
+          nextBrightness -= random(25, 61);
+        }
+
+        if (nextBrightness < 70) nextBrightness = 70;
         if (nextBrightness > 255) nextBrightness = 255;
-
         level[i] = nextBrightness;
       }
 
